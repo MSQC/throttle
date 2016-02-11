@@ -1,28 +1,16 @@
 # Throttle (v0.3.3)
 Ban identifier after certain amount of requests in a given timeframe.
 
-[![Build Status](https://api.travis-ci.org/websoftwares/Throttle.png)](https://travis-ci.org/websoftwares/Throttle)
+[![Build Status](https://travis-ci.org/sideshowcecil/throttle.png)](https://travis-ci.org/sideshowcecil/throttle)
 
-## Installing via Composer (recommended)
+## Installation
 
-Install composer in your project:
-```
-curl -s http://getcomposer.org/installer | php
-```
+The suggested installation method is via [composer](https://getcomposer.org/):
 
-Create a composer.json file in your project root:
-```
-{
-    "require": {
-        "websoftwares/throttle": "dev-master"
-    }
-}
+```sh
+php composer.phar require "sideshow_bob/throttle"
 ```
 
-Install via composer
-```
-php composer.phar install
-```
 
 ## Usage
 Basic usage of the `Throttle` class to ban an identifier.
@@ -30,15 +18,15 @@ Basic usage of the `Throttle` class to ban an identifier.
 ```php
 use Websoftwares\Throttle, Websoftwares\Storage\Memcached, Monolog\Logger;
 
-// Ip
-$identifier = '$_SERVER["REMOTE_ADDR"]';
-// Instantiate class
-$throttle = new Throttle(new Logger('throttle'), new Memcached());
+// ip
+$identifier = $_SERVER["REMOTE_ADDR"];
+// instantiate class
+$throttle = new \sideshow_bob\Throttle(new \Monolog\Logger('throttle'), new \sideshow_bob\Storage\Memcached());
 
 if($throttle->validate($identifier)) {
-	// Success proceed
+	// success proceed
 } else {
-	// Banned
+	// banned
 }
 
 ```
@@ -46,7 +34,7 @@ if($throttle->validate($identifier)) {
 ## Logger
 Any logger library that implements the [PSR-3](https://github.com/php-fig/log) _LoggerInterface_ should work,
 just create your Logger object and inject it into the `Throttle` constructor.
-For example the excellent logging library [Monolog](https://github.com/Seldaek/monolog).
+For example the excellent logging library [Monolog](https://github.com/seldaek/monolog).
 
 ## Storage
 Included is a `Memcached` example however it is very easy to use some other storage system
@@ -61,11 +49,11 @@ this could lead to a DDOS attack and take your database down.
 U can override the default options by instantiating a `Throttle` class and pass in an _array_ as the third argument.
 
 ```php
-$options = array(
+$options = [
 	'banned' => 10, // Ban identifier after 10 attempts. (default 5)
 	'logged' => 20, // Log identifier after 20 attempts. (default 10)
 	'timespan' => 60 // The timespan for the duration of the ban. (default 86400)
-	);
+];
 
 // Instantiate class
 $throttle = new Throttle(new Logger('throttle'), new Memcached(), $options);
@@ -94,10 +82,7 @@ sudo apt-get install php5-memcached
 ```
 
 ## Testing
-In the tests folder u can find several tests.
-
-## License
-[DBAD](http://www.dbad-license.org/ "DBAD") Public License.
+In the test folder u can find several tests.
 
 ## Acknowledgement
 Converted from python example and comments from [Forrst.com](https://forrst.com/posts/Limiting_number_of_requests_in_a_given_timeframe-0BW "Forrst") post.
