@@ -5,7 +5,7 @@ namespace sideshow_bob\throttle\Storage;
  * StorageInterface implementation based on a simple in memory array.
  * @package sideshow_bob\throttle\Storage
  */
-class ArrayStorage extends AbstractStorage
+final class ArrayStorage extends AbstractStorage
 {
     private $storage = [];
 
