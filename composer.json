@@ -1,28 +1,42 @@
 {
-    "name": "websoftwares/throttle",
+    "name": "sideshow_bob/throttle",
     "description": "Ban identifier after certain amount of requests in a given timeframe.",
-    "license": "DBAD",
-    "keywords": ["Throttle", "Brute Force", "Security", "Hammer", "Login", "Rate", "Limit", "Ip"],
+    "license": "mit",
+    "keywords": [
+        "Throttle",
+        "Brute Force",
+        "Security",
+        "Hammer",
+        "Login",
+        "Rate",
+        "Limit",
+        "Ip"
+    ],
     "authors": [
         {
-            "name": "Boris Verhaaff",
-            "email": "boris@websoftwar.es"
+            "name": "sideshow_bob",
+            "email": "bernd.rathmanner@gmail.com"
         }
     ],
-    "autoload": {
-        "psr-0": {
-            "Websoftwares": "src/"
-        }
+    "require": {
+        "php": ">=5.4",
+        "psr/log": "~1.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "3.7.*",
-        "monolog/monolog": "dev-master"
-    },
-    "require": {
-        "php": ">=5.3.0",
-        "psr/log": "~1.0"
+        "phpunit/phpunit": "~4.8",
+        "monolog/monolog": "~1.17"
     },
     "suggest": {
         "monolog/monolog": "Excellent PHP 5.3+ PSR-3 compatible logging library."
+    },
+    "autoload": {
+        "psr-4": {
+            "sideshow_bob\\throttle\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "sideshow_bob\\throttle\\": "test/"
+        }
     }
 }
