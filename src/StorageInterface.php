@@ -1,5 +1,6 @@
 <?php
-namespace Websoftwares;
+namespace sideshow_bob\throttle;
+
 /**
  * StorageInterface
  * Interface defining methods that must be implemented in the storage classes.

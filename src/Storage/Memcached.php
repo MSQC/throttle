@@ -1,5 +1,6 @@
 <?php
-namespace Websoftwares\Storage;
+namespace sideshow_bob\throttle\Storage;
+
 /**
  * Memcached
  * Class for handling memcached storage
@@ -10,7 +11,7 @@ namespace Websoftwares\Storage;
  * @version 0.3.3
  * @author Boris <boris@websoftwar.es>
  */
-class Memcached implements \Websoftwares\StorageInterface
+class Memcached implements \sideshow_bob\throttle\StorageInterface
 {
     /**
      * $memcached

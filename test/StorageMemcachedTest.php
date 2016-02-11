@@ -1,5 +1,6 @@
 <?php
-use Websoftwares\Storage\Memcached;
+use sideshow_bob\throttle\Storage\Memcached;
+
 /**
  * Class StorageMemcacheTest
  */

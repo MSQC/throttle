@@ -1,6 +1,8 @@
 <?php
-namespace Websoftwares;
-use Psr\Log\LoggerInterface, Websoftwares\StorageInterface;
+namespace sideshow_bob\throttle;
+
+use Psr\Log\LoggerInterface;
+
 /**
  * Throttle class
  * Ban identifier after certain amount of requests in a given timeframe.

@@ -1,5 +1,8 @@
 <?php
-use Websoftwares\Throttle, Websoftwares\Storage\Memcached, Monolog\Logger;
+use Monolog\Logger;
+use sideshow_bob\throttle\Storage\Memcached;
+use sideshow_bob\throttle\Throttle;
+
 /**
  * Class ThrottleTest
  */
