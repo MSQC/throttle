@@ -14,6 +14,7 @@ final class RedisStorage extends AbstractStorage
      * @param string $host
      * @param int $port [optional]
      * @param float $timeout [optional]
+     * @throws \RedisException
      */
     public function __construct($host, $port = 6379, $timeout = 0.0)
     {
