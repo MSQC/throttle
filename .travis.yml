@@ -1,16 +1,25 @@
 language: php
 
 php:
-  - 5.3
   - 5.4
   - 5.5
+  - 5.6
+  - 7.0
+  - hhvm
 
 services:
   - memcached
+  - redis-server
 
 before_script:
-  - curl -s http://getcomposer.org/installer | php
-  - php composer.phar install --dev --prefer-source
+  # composer update
+  - composer self-update
+  - composer install --no-interaction --prefer-source --dev
+  # enable the memcached extension
   - echo "extension = memcached.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 
-script: phpunit -c phpunit.xml
+script:
+  # phpunit
+  - vendor/bin/phpunit
+  # phpcs
+  - vendor/bin/phpcs --standard=PSR2 ./src/ ./test/
