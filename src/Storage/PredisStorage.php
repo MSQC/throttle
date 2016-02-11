@@ -9,19 +9,18 @@ use Predis\Client;
  */
 final class PredisStorage extends AbstractStorage
 {
-    private $redis = null;
+    private $client = null;
 
     /**
      * PredisStorage constructor.
-     * @param mixed $parameters Connection parameters for one or more servers.
-     * @param mixed $options Options to configure some behaviours of the client.
+     * @param Client $client
      */
-    public function __construct($parameters = null, $options = null)
+    public function __construct(Client $client)
     {
         if (!class_exists("Predis\\Client")) {
             throw new \RuntimeException("Predis\\Client class not found");
         }
-        $this->redis = new Client($parameters, $options);
+        $this->client = $client;
     }
 
     /**
@@ -29,7 +28,7 @@ final class PredisStorage extends AbstractStorage
      */
     public function get($identifier)
     {
-        return $this->redis->get(static::normalize($identifier));
+        return $this->client->get(static::normalize($identifier));
     }
 
     /**
@@ -37,7 +36,7 @@ final class PredisStorage extends AbstractStorage
      */
     public function save($identifier, $amount, $ttl = 300)
     {
-        $this->redis->setex(static::normalize($identifier), $ttl, $amount);
+        $this->client->setex(static::normalize($identifier), $ttl, $amount);
     }
 
     /**
@@ -45,7 +44,7 @@ final class PredisStorage extends AbstractStorage
      */
     public function increment($identifier)
     {
-        return $this->redis->incr(static::normalize($identifier));
+        return $this->client->incr(static::normalize($identifier));
     }
 
     /**
@@ -53,6 +52,6 @@ final class PredisStorage extends AbstractStorage
      */
     public function delete($identifier)
     {
-        $this->redis->del(static::normalize($identifier));
+        $this->client->del(static::normalize($identifier));
     }
 }
