@@ -12,7 +12,7 @@ final class ArrayStorage extends AbstractStorage
     /**
      * @inheritdoc
      */
-    public function get($identifier)
+    public function doGet($identifier)
     {
         if (($data = $this->getAndValidate($identifier)) === null) {
             // no data found
@@ -24,9 +24,9 @@ final class ArrayStorage extends AbstractStorage
     /**
      * @inheritdoc
      */
-    public function save($identifier, $amount, $ttl = 300)
+    public function doSave($identifier, $amount, $ttl = 300)
     {
-        $this->storage[static::normalize($identifier)] = [
+        $this->storage[$identifier] = [
             "amount" => $amount,
             "ttl" => $ttl,
             "expiration" => time() + $ttl,
@@ -36,7 +36,7 @@ final class ArrayStorage extends AbstractStorage
     /**
      * @inheritdoc
      */
-    public function increment($identifier)
+    public function doIncrement($identifier)
     {
         $data = $this->getAndValidate($identifier);
         $this->save($identifier, $data["amount"] + 1, $data["ttl"]);
@@ -46,9 +46,8 @@ final class ArrayStorage extends AbstractStorage
     /**
      * @inheritdoc
      */
-    public function delete($identifier)
+    public function doDelete($identifier)
     {
-        $identifier = static::normalize($identifier);
         if (isset($this->storage[$identifier])) {
             unset($this->storage[$identifier]);
         }
@@ -61,7 +60,6 @@ final class ArrayStorage extends AbstractStorage
      */
     private function getAndValidate($identifier)
     {
-        $identifier = static::normalize($identifier);
         if (!isset($this->storage[$identifier])) {
             return null;
         }
