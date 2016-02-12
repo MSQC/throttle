@@ -23,35 +23,35 @@ final class CacheStorage extends AbstractStorage
     /**
      * @inheritdoc
      */
-    public function get($identifier)
+    public function doGet($identifier)
     {
-        $amount = $this->cache->fetch(static::normalize($identifier));
+        $amount = $this->cache->fetch($identifier);
         return is_int($amount) ? $amount : 0;
     }
 
     /**
      * @inheritdoc
      */
-    public function save($identifier, $amount, $ttl = 300)
+    public function doSave($identifier, $amount, $ttl = 300)
     {
-        $this->cache->save(static::normalize($identifier), $amount, $ttl);
+        $this->cache->save($identifier, $amount, $ttl);
     }
 
     /**
      * @inheritdoc
      */
-    public function increment($identifier)
+    public function doIncrement($identifier, $ttl = 300)
     {
         $amount = $this->get($identifier) + 1;
-        $this->save($identifier, $amount);
+        $this->save($identifier, $amount, $ttl);
         return $amount;
     }
 
     /**
      * @inheritdoc
      */
-    public function delete($identifier)
+    public function doDelete($identifier)
     {
-        $this->cache->delete(static::normalize($identifier));
+        $this->cache->delete($identifier);
     }
 }
