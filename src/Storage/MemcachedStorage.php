@@ -27,32 +27,32 @@ final class MemcachedStorage extends AbstractStorage
     /**
      * @inheritdoc
      */
-    public function get($identifier)
+    public function doGet($identifier)
     {
-        return $this->memcached->get(static::normalize($identifier));
+        return ($amount = $this->memcached->get($identifier)) !== false ? $amount : 0;
     }
 
     /**
      * @inheritdoc
      */
-    public function save($identifier, $amount, $ttl = 300)
+    public function doSave($identifier, $amount, $ttl = 300)
     {
-        $this->memcached->set(static::normalize($identifier), $amount, time() + $ttl);
+        $this->memcached->set($identifier, $amount, time() + $ttl);
     }
 
     /**
      * @inheritdoc
      */
-    public function increment($identifier)
+    public function doIncrement($identifier, $ttl = 300)
     {
-        return $this->memcached->increment(static::normalize($identifier));
+        return $this->memcached->increment($identifier, 1, 0, time() + $ttl);
     }
 
     /**
      * @inheritdoc
      */
-    public function delete($identifier)
+    public function doDelete($identifier)
     {
-        $this->memcached->delete(static::normalize($identifier));
+        $this->memcached->delete($identifier);
     }
 }
