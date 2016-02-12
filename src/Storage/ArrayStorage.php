@@ -28,7 +28,6 @@ final class ArrayStorage extends AbstractStorage
     {
         $this->storage[$identifier] = [
             "amount" => $amount,
-            "ttl" => $ttl,
             "expiration" => time() + $ttl,
         ];
     }
@@ -36,10 +35,10 @@ final class ArrayStorage extends AbstractStorage
     /**
      * @inheritdoc
      */
-    public function doIncrement($identifier)
+    public function doIncrement($identifier, $ttl = 300)
     {
         $data = $this->getAndValidate($identifier);
-        $this->save($identifier, $data["amount"] + 1, $data["ttl"]);
+        $this->save($identifier, $data["amount"] + 1, $ttl);
         return $this->get($identifier);
     }
 

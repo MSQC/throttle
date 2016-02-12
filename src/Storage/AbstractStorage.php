@@ -69,11 +69,11 @@ abstract class AbstractStorage implements StorageInterface
     /**
      * @inheritdoc
      */
-    public function increment($identifier)
+    public function increment($identifier, $ttl = 300)
     {
         $identifier = static::normalize($identifier);
         try {
-            return $this->doIncrement($identifier);
+            return $this->doIncrement($identifier, $ttl);
         } catch (\Exception $e) {
             throw new StorageException("Could not increment data from storage", $e);
         }
@@ -82,10 +82,11 @@ abstract class AbstractStorage implements StorageInterface
     /**
      * Increment the amount of a specific identifier and return it's new amount.
      * @param string $identifier
+     * @param int $ttl [optional] time to live in seconds
      * @return int
      * @see increment
      */
-    abstract protected function doIncrement($identifier);
+    abstract protected function doIncrement($identifier, $ttl = 300);
 
     public function delete($identifier)
     {

@@ -27,10 +27,11 @@ interface StorageInterface
     /**
      * Increment the amount of a specific identifier and return it's new amount.
      * @param string $identifier
+     * @param int $ttl [optional] time to live in seconds
      * @return int
      * @throws StorageException
      */
-    public function increment($identifier);
+    public function increment($identifier, $ttl = 300);
 
     /**
      * Remove a specific identifier.
