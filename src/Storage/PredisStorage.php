@@ -2,6 +2,7 @@
 namespace sideshow_bob\throttle\Storage;
 
 use Predis\Client;
+use Predis\Pipeline\Pipeline;
 
 /**
  * StorageInterface implementation based on Predis.
@@ -26,32 +27,39 @@ final class PredisStorage extends AbstractStorage
     /**
      * @inheritdoc
      */
-    public function get($identifier)
+    public function doGet($identifier)
     {
-        return $this->client->get(static::normalize($identifier));
+        return $this->client->get($identifier);
     }
 
     /**
      * @inheritdoc
      */
-    public function save($identifier, $amount, $ttl = 300)
+    public function doSave($identifier, $amount, $ttl = 300)
     {
-        $this->client->setex(static::normalize($identifier), $ttl, $amount);
+        $this->client->setex($identifier, $ttl, $amount);
     }
 
     /**
      * @inheritdoc
      */
-    public function increment($identifier)
+    public function doIncrement($identifier, $ttl = 300)
     {
-        return $this->client->incr(static::normalize($identifier));
+        $responses = $this->client->pipeline(
+            ["atomic" => true],
+            function (Pipeline $pipe) use ($identifier, $ttl) {
+                $pipe->incr($identifier);
+                $pipe->expire($identifier, $ttl);
+            }
+        );
+        return $responses[0];
     }
 
     /**
      * @inheritdoc
      */
-    public function delete($identifier)
+    public function doDelete($identifier)
     {
-        $this->client->del(static::normalize($identifier));
+        $this->client->del($identifier);
     }
 }
