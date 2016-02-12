@@ -11,6 +11,7 @@ interface StorageInterface
      * Get the current amount of request for a specific identifier.
      * @param string $identifier
      * @return int
+     * @throws StorageException
      */
     public function get($identifier);
 
@@ -19,6 +20,7 @@ interface StorageInterface
      * @param string $identifier identifier to save
      * @param int $amount the current amount
      * @param int $ttl [optional] time to live in seconds
+     * @throws StorageException
      */
     public function save($identifier, $amount, $ttl = 300);
 
@@ -26,12 +28,14 @@ interface StorageInterface
      * Increment the amount of a specific identifier and return it's new amount.
      * @param string $identifier
      * @return int
+     * @throws StorageException
      */
     public function increment($identifier);
 
     /**
      * Remove a specific identifier.
      * @param string $identifier
+     * @throws StorageException
      */
     public function delete($identifier);
 }
