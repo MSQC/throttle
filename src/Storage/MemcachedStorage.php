@@ -19,6 +19,8 @@ final class MemcachedStorage extends AbstractStorage
             throw new \RuntimeException("Memcached class not found");
         }
         $this->memcached = new \Memcached();
+        // use the binary protocol for increment to work
+        $this->memcached->setOption(\Memcached::OPT_BINARY_PROTOCOL, true);
         foreach ($servers as $server => $port) {
             $this->memcached->addServer($server, $port);
         }
