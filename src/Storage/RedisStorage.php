@@ -28,32 +28,34 @@ final class RedisStorage extends AbstractStorage
     /**
      * @inheritdoc
      */
-    public function get($identifier)
+    public function doGet($identifier)
     {
-        return $this->redis->get(static::normalize($identifier));
+        return $this->redis->get($identifier);
     }
 
     /**
      * @inheritdoc
      */
-    public function save($identifier, $amount, $ttl = 300)
+    public function doSave($identifier, $amount, $ttl = 300)
     {
-        $this->redis->set(static::normalize($identifier), $amount, $ttl);
+        $this->redis->set($identifier, $amount, $ttl);
     }
 
     /**
      * @inheritdoc
      */
-    public function increment($identifier)
+    public function doIncrement($identifier, $ttl = 300)
     {
-        return $this->redis->incr(static::normalize($identifier));
+        $amount = $this->redis->incr($identifier);
+        $this->redis->expire($identifier, $ttl);
+        return $amount;
     }
 
     /**
      * @inheritdoc
      */
-    public function delete($identifier)
+    public function doDelete($identifier)
     {
-        $this->redis->del(static::normalize($identifier));
+        $this->redis->del($identifier);
     }
 }
