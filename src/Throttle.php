@@ -2,135 +2,79 @@
 namespace sideshow_bob\throttle;
 
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 /**
- * Throttle class
- * Ban identifier after certain amount of requests in a given timeframe.
- *
- * Converted from python example and comments from below link.
- * @link https://forrst.com/posts/Limiting_number_of_requests_in_a_given_timeframe-0BW
- *
- * @package Websoftwares
- * @license http://www.dbad-license.org/ DbaD
- * @version 0.3.3
- * @author Boris <boris@websoftwar.es>
+ * Throttle implementation
+ * Ban an identifier after a certain amount of requests in a given timeframe.
+ * Forked from websoftwares/throttle
+ * @link https://github.com/websoftwares/Throttle
  */
 class Throttle
 {
-    /**
-     * $logger object that implements the PSR-3 LoggerInterface
-     * @var object
-     */
-    private $logger = null;
-    /**
-     * $storage object that implements the storage interface
-     * @var object
-     */
-    private $storage = null;
-    /**
-     * $options the options that are required
-     * @var array
-     */
-    private $options = array();
+    private $storage;
+    private $options;
+    private $logger;
 
     /**
-     * __construct
-     * @param object $logger  object that implements the PSR-3 LoggerInterface
-     * @param object $storage object that implements the StorageInterface
-     * @param array  $options array('banned' => 5, 'logged' => 10, 'timespan' => '86400')
+     * Throttle constructor.
+     * @param StorageInterface $storage
+     * @param array $options [optional] defaults: ["ban" => 5, "log" => 10, "timespan" => 86400]
+     * @param LoggerInterface $logger [optional]
      */
-    public function __construct(LoggerInterface $logger = null, StorageInterface $storage = null, array $options = array())
+    public function __construct(StorageInterface $storage, array $options = [], LoggerInterface $logger = null)
     {
-        // logger and storage are required
-        if (! $logger && ! $storage) {
-            throw new \InvalidArgumentException('logger and storage objects are required');
-        }
-
-        // Assign objects to properties
-        $this->logger = $logger;
         $this->storage = $storage;
-
-        // The options
+        // merge the options with the default ones
         $this->options = array_merge(
-            array(
-                'banned' => 5, // Ban identifier after 5 attempts
-                'logged' => 10, // Log identifier after 10 attempts
-                'timespan' => '86400' // The timespan in seconds for ban
-                ),
+            [
+                "ban" => 5, // ban an identifier after 5 attempts
+                "log" => 10, // log an identifier after 10 attempts
+                "timespan" => 86400 // ban timespan in seconds
+            ],
             $options
         );
+        $this->logger = $logger instanceof LoggerInterface ? $logger : new NullLogger();
     }
 
     /**
-     * validate
-     *
-     * @param  mixed   $identifier
-     * @return boolean
+     * Validate if an identifier has been banned.
+     * This method saves data to a storage to track the identifier.
+     * @param string $identifier
+     * @return bool
      */
-    public function validate($identifier = null)
+    public function validate($identifier)
     {
-        // No identifier
-        if (!$identifier) {
-            throw new \InvalidArgumentException('identifier is a required argument');
+        // current attempts
+        $attempts = $this->storage->increment($identifier, $this->options["timespan"]);
+        if ($this->options["log"] !== false && $attempts >= $this->options["log"]) {
+            // log the attempt
+            $this->logger->warning("{$identifier} exceeded the number of allowed requests");
         }
-
-        // Current attempts
-        $attempts = $this->storage->increment($identifier);
-
-        // No attempts
-        if (! $attempts) {
-            $this->storage->save($identifier, 1, $this->options['timespan']);
-
-        // Logged
-        } elseif ($attempts == $this->options['logged']) {
-            // Set expiration to zero (perm ban)
-            $this->storage->update($identifier, $attempts, 0);
-            // Log
-            $this->logger->log('warning', $identifier . ' exceeded the number of allowed requests');
-
-            return false;
-
-        // Banned
-        } elseif ($attempts >= $this->options['banned']) {
+        if ($attempts >= $this->options["ban"]) {
+            // the identifier has been banned
             return false;
         }
-
-        // Valid
+        // valid
         return true;
     }
 
     /**
-     * reset
-     *
-     * @param  mixed   $identifier
-     * @return boolean
+     * Reset the tracking of a specific identifier.
+     * @param string $identifier
      */
-    public function reset($identifier = null)
+    public function reset($identifier)
     {
-        // No identifier
-        if (!$identifier) {
-            throw new \InvalidArgumentException('identifier is a required argument');
-        }
-        // Removed the identifier from storage
-        return $this->storage->delete($identifier);
+        $this->storage->delete($identifier);
     }
 
     /**
-     * remaining
-     *
-     * @param  mixed $identifier
+     * Get the remaining amount of attempts for a specific identifier.
+     * @param string $identifier
      * @return int
      */
-    public function remaining($identifier = null)
+    public function remaining($identifier)
     {
-        // No identifier
-        if (!$identifier) {
-            throw new \InvalidArgumentException('identifier is a required argument');
-        }
-        // Get the value for identifier from storage
-        $current = (int) $this->storage->get($identifier);
-
-        // Return remaining attempts left before ban is set
-        return $this->options['banned'] - $current;
+        return $this->options["ban"] - $this->storage->get($identifier);
     }
 }

@@ -1,127 +1,85 @@
 <?php
-use Monolog\Logger;
-use sideshow_bob\throttle\Storage\Memcached;
-use sideshow_bob\throttle\Throttle;
+namespace sideshow_bob\throttle;
+
+use sideshow_bob\throttle\Storage\ArrayStorage;
 
 /**
  * Class ThrottleTest
  */
 class ThrottleTest extends \PHPUnit_Framework_TestCase
 {
+    const IDENTIFIER = "identifier";
+    const BAN = 10;
+    const LOG = 20;
+    const TIME_SPAN = 10;
 
     /**
-     * $reflection
-     * @var object
+     * @var Throttle
      */
-    protected $reflection = null;
+    private $throttle;
 
+    /**
+     * @inheritdoc
+     */
     public function setUp()
     {
-        $options = array(
-            'banned' => 10, // Ban identifier after 10 attempts. (default 5)
-            'logged' => 20, // Log identifier after 20 attempts. (default 10)
-            'timespan' => 10 // The timespan for the duration of the ban. (default 86400)
-            );
-        $this->throttle = new Throttle(new Logger('throttle'), new Memcached(),$options);
+        $this->throttle = new Throttle(
+            new ArrayStorage(),
+            [
+                "ban" => static::BAN,
+                "log" => static::LOG,
+                "timespan" => static::TIME_SPAN,
+            ]
+        );
     }
 
-    public function testInstantiateAsObjectSucceeds()
+    public function testSuccessfulValidate()
     {
-        $this->assertInstanceOf('Websoftwares\Throttle', $this->throttle);
+        $this->assertTrue($this->throttle->validate(static::IDENTIFIER));
     }
 
-    public function testPropertyValuesSucceeds()
+    public function testBan()
     {
-        $throttle = new Throttle(new Logger('throttle'), new Memcached());
-        $this->reflection = new \ReflectionClass($throttle);
-
-        $options = $this->getProperty('options',$throttle);
-        $expected = array('banned' => 5, 'logged' => 10, 'timespan' => 86400);
-
-        $this->assertInternalType('array', $options);
-        $this->assertEquals($expected, $options);
-
-        $this->assertInstanceOf('\\Websoftwares\Storage\Memcached', $this->getProperty('storage',$throttle));
-        $this->assertInstanceOf('\\Monolog\Logger', $this->getProperty('logger',$throttle));
-    }
-
-    public function testValidateSucceeds()
-    {
-        // 10 rounds
-        for ($i=0; $i < 9; $i++) {
-            $this->assertTrue($this->throttle->validate('127.0.0.11'));
+        for ($i = 0; $i < 9; $i++) {
+            $this->assertTrue($this->throttle->validate(static::IDENTIFIER));
         }
-        // Failed
-        $this->assertFalse($this->throttle->validate('127.0.0.11'));
-        // Expire the ban
+        $this->assertFalse($this->throttle->validate(static::IDENTIFIER));
+    }
+
+    public function testLog()
+    {
+        for ($i = 0; $i < static::BAN - 1; $i++) {
+            $this->assertTrue($this->throttle->validate(static::IDENTIFIER));
+        }
+        for ($i = static::BAN; $i < static::LOG - 1; $i++) {
+            $this->assertFalse($this->throttle->validate(static::IDENTIFIER));
+        }
+        $this->assertFalse($this->throttle->validate(static::IDENTIFIER));
+    }
+
+    public function testBanExpiration()
+    {
+        for ($i = 0; $i < static::BAN - 1; $i++) {
+            $this->assertTrue($this->throttle->validate(static::IDENTIFIER));
+        }
+        $this->assertFalse($this->throttle->validate(static::IDENTIFIER));
         sleep(10);
-        // Valid again
-        $this->assertTrue($this->throttle->validate('127.0.0.11'));
+        $this->assertTrue($this->throttle->validate(static::IDENTIFIER));
     }
 
-    public function testResetSucceeds()
+    public function testReset()
     {
-        $identifier = "Lijpehackertje@169.168.0.1";
-        $this->assertTrue($this->throttle->validate($identifier));
-        $this->assertTrue($this->throttle->reset($identifier));
-        $this->assertFalse($this->throttle->reset($identifier));
+        for ($i = 0; $i < static::BAN - 1; $i++) {
+            $this->assertTrue($this->throttle->validate(static::IDENTIFIER));
+        }
+        $this->assertFalse($this->throttle->validate(static::IDENTIFIER));
+        $this->throttle->reset(static::IDENTIFIER);
+        $this->assertTrue($this->throttle->validate(static::IDENTIFIER));
     }
 
-    public function testRemainingSucceeds()
+    public function testRemaining()
     {
-        $identifier = "Lijpehackertje@169.168.0.1";
-        $this->assertTrue($this->throttle->validate($identifier));
-        $actual = $this->throttle->remaining($identifier);
-        $this->assertEquals(9, $actual);
-        $this->assertInternalType('int', $actual);
-        $this->assertInternalType('int',  $this->throttle->remaining('NotFound'));
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testValidateFails()
-    {
-        $this->throttle->validate();
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testResetFails()
-    {
-        $this->throttle->reset();
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testRemainingFails()
-    {
-        $this->throttle->remaining();
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testInstantiateAsObjectFails()
-    {
-        new Throttle;
-    }
-
-    /**
-     * @expectedException Exception
-     */
-    public function testInstantiateAsObjectArgumentsFails()
-    {
-        new Throttle(new \stdClass, new \stdClass, 'lorum');
-    }
-
-    public function getProperty($property, $object = null)
-    {
-        $property = $this->reflection->getProperty($property);
-        $property->setAccessible(true);
-
-        return $property->getValue($object ? $object : $this->throttle);
+        $this->assertTrue($this->throttle->validate(static::IDENTIFIER));
+        $this->assertEquals(static::BAN - 1, $this->throttle->remaining(static::IDENTIFIER));
     }
 }
