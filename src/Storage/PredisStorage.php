@@ -18,9 +18,6 @@ final class PredisStorage extends AbstractStorage
      */
     public function __construct(Client $client)
     {
-        if (!class_exists("Predis\\Client")) {
-            throw new \RuntimeException("Predis\\Client class not found");
-        }
         $this->client = $client;
     }
 
@@ -35,21 +32,26 @@ final class PredisStorage extends AbstractStorage
     /**
      * @inheritdoc
      */
-    public function doSave($identifier, $amount, $ttl = 300)
+    public function doSave($identifier, $amount, $ttl = 0)
     {
-        $this->client->setex($identifier, $ttl, $amount);
+        if ($ttl > 0) {
+            $this->client->setex($identifier, $ttl, $amount);
+        } else {
+            $this->client->set($identifier, $amount);
+        }
     }
 
     /**
      * @inheritdoc
      */
-    public function doIncrement($identifier, $ttl = 300)
+    public function doIncrement($identifier, $ttl = 0)
     {
+        $deltaTtl = $this->client->ttl($identifier);
         $responses = $this->client->pipeline(
             ["atomic" => true],
-            function (Pipeline $pipe) use ($identifier, $ttl) {
+            function (Pipeline $pipe) use ($identifier, $deltaTtl, $ttl) {
                 $pipe->incr($identifier);
-                $pipe->expire($identifier, $ttl);
+                $pipe->expire($identifier, $deltaTtl > 0 ? $deltaTtl : $ttl);
             }
         );
         return $responses[0];
