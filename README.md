@@ -1,4 +1,4 @@
-# Throttle (v0.3.3)
+# Throttle
 Ban identifier after certain amount of requests in a given timeframe.
 
 [![Build Status](https://travis-ci.org/sideshowcecil/throttle.png)](https://travis-ci.org/sideshowcecil/throttle)
