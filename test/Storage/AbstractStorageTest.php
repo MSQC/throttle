@@ -5,6 +5,10 @@ use sideshow_bob\throttle\StorageInterface;
 
 abstract class AbstractStorageTest extends \PHPUnit_Framework_TestCase
 {
+    const IDENTIFIER = "identifier";
+    const NX_IDENTIFIER = "non-existing-identifier";
+    const TTL = 3;
+
     /** @var  StorageInterface */
     private $storage;
 
@@ -20,7 +24,7 @@ abstract class AbstractStorageTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->storage = $this->createStorage();
-        $this->storage->save("identifier", 1, 10);
+        $this->storage->save(static::IDENTIFIER, 1, static::TTL);
     }
 
     public function testInvalidIdentifier()
@@ -31,32 +35,37 @@ abstract class AbstractStorageTest extends \PHPUnit_Framework_TestCase
 
     public function testMissingData()
     {
-        $this->assertEquals(0, $this->storage->get("non-existing-identifier"));
+        $this->assertEquals(0, $this->storage->get(static::NX_IDENTIFIER));
     }
 
     public function testDataExpiration()
     {
-        $this->storage->save("identifier", 1, 1);
-        sleep(2);
-        $this->assertEquals(0, $this->storage->get("non-existing-identifier"));
+        sleep(static::TTL + 1);
+        $this->assertEquals(0, $this->storage->get(static::NX_IDENTIFIER));
     }
 
     public function testSaveAndGet()
     {
-        $this->assertEquals(1, $this->storage->get("identifier"));
+        $this->assertEquals(1, $this->storage->get(static::IDENTIFIER));
     }
 
     public function testSaveAndIncrement()
     {
-        $this->assertEquals(2, $this->storage->increment("identifier"));
+        $this->assertEquals(2, $this->storage->increment(static::IDENTIFIER));
     }
 
-    /**
-     * @after testSaveAndGet
-     */
     public function testSaveAndDelete()
     {
-        $this->storage->delete("identifier");
-        $this->assertEquals(0, $this->storage->get("identifier"));
+        $this->storage->delete(static::IDENTIFIER);
+        $this->assertEquals(0, $this->storage->get(static::IDENTIFIER));
+    }
+
+    public function testIncrementAndExpire()
+    {
+        $this->assertEquals(1, $this->storage->get(static::IDENTIFIER));
+        $this->assertEquals(2, $this->storage->increment(static::IDENTIFIER, static::TTL));
+        sleep(static::TTL + 1);
+        $this->assertEquals(0, $this->storage->get(static::IDENTIFIER));
+        $this->assertEquals(1, $this->storage->increment(static::IDENTIFIER, static::TTL));
     }
 }
