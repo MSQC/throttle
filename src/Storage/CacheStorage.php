@@ -9,7 +9,7 @@ use Doctrine\Common\Cache\Cache;
  */
 final class CacheStorage extends AbstractStorage
 {
-    private $cache = null;
+    private $cache;
 
     /**
      * RedisStorage constructor.

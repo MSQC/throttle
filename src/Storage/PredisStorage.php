@@ -10,7 +10,7 @@ use Predis\Pipeline\Pipeline;
  */
 final class PredisStorage extends AbstractStorage
 {
-    private $client = null;
+    private $client ;
 
     /**
      * PredisStorage constructor.
