@@ -24,11 +24,11 @@ final class ArrayStorage extends AbstractStorage
     /**
      * @inheritdoc
      */
-    public function doSave($identifier, $amount, $ttl = 300)
+    public function doSave($identifier, $amount, $ttl = 0)
     {
         $this->storage[$identifier] = [
             "amount" => $amount,
-            "expiration" => time() + $ttl,
+            "expiration" => $ttl === 0 ? 0 : time() + $ttl,
         ];
     }
 
@@ -37,9 +37,14 @@ final class ArrayStorage extends AbstractStorage
      */
     public function doIncrement($identifier, $ttl = 300)
     {
-        $data = $this->getAndValidate($identifier);
-        $this->save($identifier, $data["amount"] + 1, $ttl);
-        return $this->get($identifier);
+        if (($data = $this->getAndValidate($identifier)) === null || ($deltaTtl = $data["expiration"] - time()) <= 0) {
+            // not found or expired
+            $this->save($identifier, 1, $ttl);
+            return 1;
+        }
+        $amount = $data["amount"] + 1;
+        $this->save($identifier, $amount, $deltaTtl);
+        return $amount;
     }
 
     /**
@@ -64,7 +69,7 @@ final class ArrayStorage extends AbstractStorage
         }
         // fetch the data
         $data = $this->storage[$identifier];
-        if ($data["expiration"] < time()) {
+        if ($data["expiration"] > 0 && $data["expiration"] < time()) {
             // the data has expired so we remove it
             unset($this->storage[$identifier]);
             return null;
