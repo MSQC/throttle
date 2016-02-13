@@ -25,25 +25,42 @@ final class CacheStorage extends AbstractStorage
      */
     public function doGet($identifier)
     {
-        $amount = $this->cache->fetch($identifier);
-        return is_int($amount) ? $amount : 0;
+        $data = $this->cache->fetch($identifier);
+        return is_array($data) ? $data["amount"] : 0;
     }
 
     /**
      * @inheritdoc
      */
-    public function doSave($identifier, $amount, $ttl = 300)
+    public function doSave($identifier, $amount, $ttl = 0)
     {
-        $this->cache->save($identifier, $amount, $ttl);
+        $this->cache->save(
+            $identifier,
+            [
+                "amount" => $amount,
+                "expiration" => $ttl > 0 ? time() + $ttl : 0
+            ],
+            $ttl
+        );
     }
 
     /**
      * @inheritdoc
      */
-    public function doIncrement($identifier, $ttl = 300)
+    public function doIncrement($identifier, $ttl = 0)
     {
-        $amount = $this->get($identifier) + 1;
-        $this->save($identifier, $amount, $ttl);
+        $data = $this->cache->fetch($identifier);
+        if (!is_array($data)) {
+            // no data has been found
+            $this->save($identifier, 1, $ttl);
+            return 1;
+        }
+        // there exists data
+        $amount = $data["amount"] + 1;
+        // so we have to extract the custom delta ttl
+        $deltaTtl = $data["expiration"] - time();
+        // save the increased amount
+        $this->save($identifier, $amount, $deltaTtl > 0 ? $deltaTtl : $ttl);
         return $amount;
     }
 
