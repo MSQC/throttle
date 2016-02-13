@@ -3,7 +3,7 @@ namespace sideshow_bob\throttle\Storage;
 
 use Predis\Client;
 
-class PrdisStorageTest extends AbstractStorageTest
+class PredisStorageTest extends AbstractStorageTest
 {
     /**
      * @inheritdoc
