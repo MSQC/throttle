@@ -47,7 +47,7 @@ abstract class AbstractStorage implements StorageInterface
     /**
      * @inheritdoc
      */
-    public function save($identifier, $amount, $ttl = 300)
+    public function save($identifier, $amount, $ttl = 0)
     {
         $identifier = static::normalize($identifier);
         try {
@@ -64,12 +64,12 @@ abstract class AbstractStorage implements StorageInterface
      * @param int $ttl [optional] time to live in seconds
      * @see save
      */
-    abstract protected function doSave($identifier, $amount, $ttl = 300);
+    abstract protected function doSave($identifier, $amount, $ttl = 0);
 
     /**
      * @inheritdoc
      */
-    public function increment($identifier, $ttl = 300)
+    public function increment($identifier, $ttl = 0)
     {
         $identifier = static::normalize($identifier);
         try {
@@ -86,7 +86,7 @@ abstract class AbstractStorage implements StorageInterface
      * @return int
      * @see increment
      */
-    abstract protected function doIncrement($identifier, $ttl = 300);
+    abstract protected function doIncrement($identifier, $ttl = 0);
 
     public function delete($identifier)
     {

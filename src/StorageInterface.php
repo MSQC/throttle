@@ -22,7 +22,7 @@ interface StorageInterface
      * @param int $ttl [optional] time to live in seconds
      * @throws StorageException
      */
-    public function save($identifier, $amount, $ttl = 300);
+    public function save($identifier, $amount, $ttl = 0);
 
     /**
      * Increment the amount of a specific identifier and return it's new amount.
@@ -31,7 +31,7 @@ interface StorageInterface
      * @return int
      * @throws StorageException
      */
-    public function increment($identifier, $ttl = 300);
+    public function increment($identifier, $ttl = 0);
 
     /**
      * Remove a specific identifier.
