@@ -16,7 +16,7 @@ abstract class AbstractStorageTest extends \PHPUnit_Framework_TestCase
      * Create the StorageInterface implementation to test.
      * @return StorageInterface
      */
-    protected abstract function createStorage();
+    abstract protected function createStorage();
 
     /**
      * @inheritdoc
