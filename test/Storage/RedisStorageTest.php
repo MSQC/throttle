@@ -8,6 +8,8 @@ class RedisStorageTest extends AbstractStorageTest
      */
     protected function createStorage()
     {
-        return new RedisStorage("localhost");
+        $r = new \Redis();
+        $r->connect("localhost");
+        return new RedisStorage($r);
     }
 }

@@ -7,22 +7,15 @@ namespace sideshow_bob\throttle\Storage;
  */
 final class RedisStorage extends AbstractStorage
 {
-    private $redis = null;
+    private $redis;
 
     /**
      * RedisStorage constructor.
-     * @param string $host
-     * @param int $port [optional]
-     * @param float $timeout [optional]
-     * @throws \RedisException
+     * @param \Redis $redis
      */
-    public function __construct($host, $port = 6379, $timeout = 0.0)
+    public function __construct(\Redis $redis)
     {
-        if (!extension_loaded("redis")) {
-            throw new \RuntimeException("Redis class not found");
-        }
-        $this->redis = new \Redis();
-        $this->redis->connect($host, $port, $timeout);
+        $this->redis = $redis;
     }
 
     /**
@@ -36,7 +29,7 @@ final class RedisStorage extends AbstractStorage
     /**
      * @inheritdoc
      */
-    public function doSave($identifier, $amount, $ttl = 300)
+    public function doSave($identifier, $amount, $ttl = 0)
     {
         $this->redis->set($identifier, $amount, $ttl);
     }
@@ -44,10 +37,11 @@ final class RedisStorage extends AbstractStorage
     /**
      * @inheritdoc
      */
-    public function doIncrement($identifier, $ttl = 300)
+    public function doIncrement($identifier, $ttl = 0)
     {
+        $deltaTtl = $this->redis->ttl($identifier);
         $amount = $this->redis->incr($identifier);
-        $this->redis->expire($identifier, $ttl);
+        $this->redis->expire($identifier, $deltaTtl > 0 ? $deltaTtl : $ttl);
         return $amount;
     }
 
