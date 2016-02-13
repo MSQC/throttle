@@ -24,9 +24,16 @@
     },
     "require-dev": {
         "phpunit/phpunit": "~4.8",
-        "monolog/monolog": "~1.17"
+        "squizlabs/php_codesniffer": "~2.0",
+        "monolog/monolog": "~1.17",
+        "predis/predis": "~1.0",
+        "doctrine/cache": "~1.5"
     },
     "suggest": {
+        "ext-memcached": "Use Memcached for data tracking",
+        "ext-redis": "Use Redis for data tracking",
+        "predis/predis": "Use Predis for data tracking",
+        "doctrine/cache": "Use the doctrine/cache library for data tracking",
         "monolog/monolog": "Excellent PHP 5.3+ PSR-3 compatible logging library."
     },
     "autoload": {
