@@ -16,11 +16,7 @@ cache:
     - vendor/
 
 before_script:
-  # composer update
-  - composer self-update
-  - composer install --no-interaction --prefer-source
-  # enable the memcached and redis extensions
-  - .travis.install.sh
+  - sh .travis.install.sh
 
 script:
   # phpunit
