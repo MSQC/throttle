@@ -20,7 +20,7 @@ abstract class AbstractStorageTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->storage = $this->createStorage();
-        $this->storage->save("identifier", 1);
+        $this->storage->save("identifier", 1, 10);
     }
 
     public function testInvalidIdentifier()
