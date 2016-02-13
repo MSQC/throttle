@@ -11,6 +11,10 @@ services:
   - memcached
   - redis-server
 
+cache:
+  directories:
+    - vendor/
+
 before_script:
   # composer update
   - composer self-update
