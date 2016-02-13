@@ -8,10 +8,8 @@ class MemcachedStorageTest extends AbstractStorageTest
      */
     protected function createStorage()
     {
-        return new MemcachedStorage(
-            [
-                "localhost" => 11211,
-            ]
-        );
+        $m = new \Memcached();
+        $m->addServer("localhost", 11211);
+        return new MemcachedStorage($m);
     }
 }

@@ -7,23 +7,15 @@ namespace sideshow_bob\throttle\Storage;
  */
 final class MemcachedStorage extends AbstractStorage
 {
-    private $memcached = null;
+    private $memcached;
 
     /**
      * MemcachedStorage constructor.
-     * @param array $servers
+     * @param \Memcached $memcached
      */
-    public function __construct(array $servers = [])
+    public function __construct(\Memcached $memcached)
     {
-        if (!extension_loaded("memcached")) {
-            throw new \RuntimeException("Memcached class not found");
-        }
-        $this->memcached = new \Memcached();
-        // use the binary protocol for increment to work
-        $this->memcached->setOption(\Memcached::OPT_BINARY_PROTOCOL, true);
-        foreach ($servers as $server => $port) {
-            $this->memcached->addServer($server, $port);
-        }
+        $this->memcached = $memcached;
     }
 
     /**
@@ -37,17 +29,22 @@ final class MemcachedStorage extends AbstractStorage
     /**
      * @inheritdoc
      */
-    public function doSave($identifier, $amount, $ttl = 300)
+    public function doSave($identifier, $amount, $ttl = 0)
     {
-        $this->memcached->set($identifier, $amount, time() + $ttl);
+        $this->memcached->set($identifier, $amount, $ttl > 0 ? $ttl : null);
     }
 
     /**
      * @inheritdoc
      */
-    public function doIncrement($identifier, $ttl = 300)
+    public function doIncrement($identifier, $ttl = 0)
     {
-        return $this->memcached->increment($identifier, 1, 0, time() + $ttl);
+        if (($amount = $this->memcached->increment($identifier)) === false) {
+            // the key was not yet set, so we set it to 1
+            $amount = 1;
+            $this->save($identifier, $amount, $ttl);
+        }
+        return $amount;
     }
 
     /**
