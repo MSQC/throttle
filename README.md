@@ -21,7 +21,7 @@ use Websoftwares\Throttle, Websoftwares\Storage\Memcached, Monolog\Logger;
 // ip
 $identifier = $_SERVER["REMOTE_ADDR"];
 // instantiate class
-$throttle = new \sideshow_bob\Throttlenew \sideshow_bob\Storage\Memcached());
+$throttle = new \sideshow_bob\Throttle(new \sideshow_bob\Storage\Memcached());
 
 if($throttle->validate($identifier)) {
 	// success proceed
@@ -32,13 +32,10 @@ if($throttle->validate($identifier)) {
 ```
 
 ## Storage
-Included is a `Memcached` example however it is very easy to use some other storage system
-just implement the _StorageInterface_ and inject that object into the `Throttle` constructor.
+Included are `Array`, `Memcached`, `Redis`, `Predis` and `doctrine/cache` storage implementations, however it is very easy to use some other storage system just implement the _StorageInterface_ and inject that object into the `Throttle` constructor.
 
 ####_Caution_####
-Whatever storage system u decide to use,
-don not store the failed request data into your database,
-this could lead to a DDOS attack and take your database down.
+Whatever storage system you decide to use, do not store the failed request data into your database, this could lead to a DDOS attack and take your database down.
 
 ## Options
 You can override the default options by instantiating a `Throttle` class and pass in an _array_ as the third argument.
@@ -56,19 +53,18 @@ $throttle = new \sideshow_bob\Throttlenew \sideshow_bob\Storage\Memcached(), $op
 ```
 
 ## Logger
-Any logger library that implements the [PSR-3](https://github.com/php-fig/log) _LoggerInterface_ should work,
-just create your Logger object and inject it into the `Throttle` constructor.
+Any logger library that implements the [PSR-3](https://github.com/php-fig/log) _LoggerInterface_ should work, just create your Logger object and inject it into the `Throttle` constructor.
 For example the excellent logging library [Monolog](https://github.com/seldaek/monolog).
 
 ## Other Methods
 
-### reset();
+### reset()
 This will remove the identifier from the storage.
 ```php
 $throttle->reset($identifier);
 ```
 
-### remaining();
+### remaining()
 This will return an integer that is the remaining attempt(s) available before identifier gets banned.
 ```php
 $throttle->remaining($identifier);
