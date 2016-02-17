@@ -47,11 +47,11 @@ class Throttle
     {
         // current attempts
         $attempts = $this->storage->increment($identifier, $this->options["timespan"]);
-        if ($this->options["log"] !== false && $attempts >= $this->options["log"]) {
+        if ($this->options["log"] !== false && $attempts > $this->options["log"]) {
             // log the attempt
             $this->logger->warning("{$identifier} exceeded the number of allowed requests");
         }
-        if ($attempts >= $this->options["ban"]) {
+        if ($attempts > $this->options["ban"]) {
             // the identifier has been banned
             return false;
         }
