@@ -40,7 +40,7 @@ class ThrottleTest extends \PHPUnit_Framework_TestCase
 
     public function testBan()
     {
-        for ($i = 0; $i < 9; $i++) {
+        for ($i = 0; $i < static::BAN; $i++) {
             $this->assertTrue($this->throttle->validate(static::IDENTIFIER));
         }
         $this->assertFalse($this->throttle->validate(static::IDENTIFIER));
@@ -48,7 +48,7 @@ class ThrottleTest extends \PHPUnit_Framework_TestCase
 
     public function testLog()
     {
-        for ($i = 0; $i < static::BAN - 1; $i++) {
+        for ($i = 0; $i < static::BAN; $i++) {
             $this->assertTrue($this->throttle->validate(static::IDENTIFIER));
         }
         for ($i = static::BAN; $i < static::LOG - 1; $i++) {
@@ -59,7 +59,7 @@ class ThrottleTest extends \PHPUnit_Framework_TestCase
 
     public function testBanExpiration()
     {
-        for ($i = 0; $i < static::BAN - 1; $i++) {
+        for ($i = 0; $i < static::BAN; $i++) {
             $this->assertTrue($this->throttle->validate(static::IDENTIFIER));
         }
         $this->assertFalse($this->throttle->validate(static::IDENTIFIER));
@@ -69,7 +69,7 @@ class ThrottleTest extends \PHPUnit_Framework_TestCase
 
     public function testReset()
     {
-        for ($i = 0; $i < static::BAN - 1; $i++) {
+        for ($i = 0; $i < static::BAN; $i++) {
             $this->assertTrue($this->throttle->validate(static::IDENTIFIER));
         }
         $this->assertFalse($this->throttle->validate(static::IDENTIFIER));
