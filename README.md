@@ -16,7 +16,6 @@ php composer.phar require "sideshow_bob/throttle"
 Basic usage of the `Throttle` class to ban an identifier.
 
 ```php
-use Websoftwares\Throttle, Websoftwares\Storage\Memcached, Monolog\Logger;
 
 // ip
 $identifier = $_SERVER["REMOTE_ADDR"];
@@ -24,9 +23,9 @@ $identifier = $_SERVER["REMOTE_ADDR"];
 $throttle = new \sideshow_bob\Throttle(new \sideshow_bob\Storage\Memcached());
 
 if($throttle->validate($identifier)) {
-	// success proceed
+    // success proceed
 } else {
-	// banned
+    // banned
 }
 
 ```
@@ -42,13 +41,13 @@ You can override the default options by instantiating a `Throttle` class and pas
 
 ```php
 $options = [
-	"banned" => 10,     // ban identifier after 10 attempts. (default 5)
-	"logged" => 20,     // log identifier after 20 attempts. (default 10)
-	"timespan" => 60,   // the timespan for the duration of the ban. (default 86400)
+    "ban" => 10,      // ban identifier after 10 attempts. (default 5)
+    "log" => 20,      // log identifier after 20 attempts. (default 10)
+    "timespan" => 60, // the timespan for the duration of the ban. (default 86400)
 ];
 
 // Instantiate class
-$throttle = new \sideshow_bob\Throttlenew \sideshow_bob\Storage\Memcached(), $options);
+$throttle = new \sideshow_bob\Throttle(new \sideshow_bob\Storage\Memcached(), $options);
 
 ```
 
