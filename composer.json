@@ -16,6 +16,10 @@
         {
             "name": "sideshow_bob",
             "email": "bernd.rathmanner@gmail.com"
+        },
+        {
+            "name": "MSQC",
+            "email": "dev@missouriquiltco.com"
         }
     ],
     "require": {

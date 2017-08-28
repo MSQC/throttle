@@ -2,7 +2,7 @@
 namespace sideshow_bob\throttle\Storage;
 
 use Predis\Client;
-use Predis\Pipeline\Pipeline;
+use Predis\Pipeline\PipelineContext;
 
 /**
  * StorageInterface implementation based on Predis.
@@ -49,7 +49,7 @@ final class PredisStorage extends AbstractStorage
         $deltaTtl = $this->client->ttl($identifier);
         $responses = $this->client->pipeline(
             ["atomic" => true],
-            function (Pipeline $pipe) use ($identifier, $deltaTtl, $ttl) {
+            function (PipelineContext $pipe) use ($identifier, $deltaTtl, $ttl) {
                 $pipe->incr($identifier);
                 $pipe->expire($identifier, $deltaTtl > 0 ? $deltaTtl : $ttl);
             }
